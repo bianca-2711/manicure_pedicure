@@ -196,9 +196,9 @@ class App:
             servico_id = combo_servico.get().split(" - ")[0]
             data = entry_data.get_date().strftime("%Y-%m-%d")  # Data no formato YYYY-MM-DD
             hora = entry_hora.get()
-            status = combo_status.get()
 
-            if cliente_id and servico_id and data and hora and status:
+
+            if cliente_id and servico_id and data and hora:
                 try:
                     self.controller.adicionar_agendamento(cliente_id, data, hora, servico_id)
                     messagebox.showinfo("Sucesso", "Agendamento cadastrado com sucesso!")
@@ -231,10 +231,6 @@ class App:
         tk.Label(janela_agendamento, text="Hora (HH:MM):", anchor="w").grid(row=3, column=0, padx=10, pady=5, sticky="w")
         entry_hora = tk.Entry(janela_agendamento, width=50)
         entry_hora.grid(row=3, column=1, padx=10, pady=5, sticky="w")
-
-        tk.Label(janela_agendamento, text="Status:", anchor="w").grid(row=4, column=0, padx=10, pady=5, sticky="w")
-        combo_status = ttk.Combobox(janela_agendamento, values=["Agendado", "Atendido", "Cancelado"], width=50)
-        combo_status.grid(row=4, column=1, padx=10, pady=5, sticky="w")
 
         btn_salvar = tk.Button(janela_agendamento, text="Salvar", command=salvar_agendamento)
         btn_salvar.grid(row=5, column=1, padx=10, pady=20, sticky="e")
