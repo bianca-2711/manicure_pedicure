@@ -1,4 +1,3 @@
-# views.py
 import tkinter as tk
 from tkinter import ttk, messagebox
 from tkcalendar import DateEntry
@@ -42,22 +41,31 @@ class App:
         self.create_agendamentos_table()
 
     def create_agendamentos_table(self):
+        if hasattr(self, 'frame_agendamentos'):
+            self.frame_agendamentos.destroy()
+
         self.frame_agendamentos = tk.Frame(self.root)
         self.frame_agendamentos.pack(fill=tk.BOTH, expand=True, pady=20)
 
         columns = ("ID", "Cliente", "Data", "Hora", "Serviço", "Status", "Ações")
-        tree = ttk.Treeview(self.frame_agendamentos, columns=columns, show='headings')
+        self.tree = ttk.Treeview(self.frame_agendamentos, columns=columns, show='headings')
 
         for col in columns:
-            tree.heading(col, text=col)
-            tree.column(col, minwidth=0, width=100)
+            self.tree.heading(col, text=col)
+            self.tree.column(col, minwidth=0, width=100)
+
+        self.update_agendamentos_table()
+
+        self.tree.pack(fill=tk.BOTH, expand=True)
+
+    def update_agendamentos_table(self):
+        for row in self.tree.get_children():
+            self.tree.delete(row)
 
         agendamentos = self.controller.listar_agendamentos()
 
         for agendamento in agendamentos:
-            tree.insert("", "end", values=agendamento + (self.create_action_buttons(tree, agendamento[0]),))
-
-        tree.pack(fill=tk.BOTH, expand=True)
+            self.tree.insert("", "end", values=agendamento + (self.create_action_buttons(self.tree, agendamento[0]),))
 
     def create_action_buttons(self, tree, agendamento_id):
         frame = tk.Frame(tree)
@@ -136,7 +144,7 @@ class App:
                     self.controller.adicionar_agendamento(cliente_id, data, hora, servico_id)
                     messagebox.showinfo("Sucesso", "Agendamento cadastrado com sucesso!")
                     janela_agendamento.destroy()
-                    self.create_agendamentos_table()  # Atualiza a tabela de agendamentos
+                    self.update_agendamentos_table()  # Atualiza a tabela de agendamentos
                 except Exception as e:
                     messagebox.showerror("Erro", str(e))
             else:
