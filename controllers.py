@@ -9,6 +9,10 @@ class Controller:
         query = "INSERT INTO clientes (nome, telefone, email) VALUES (?, ?, ?)"
         self.db.execute_query(query, (nome, telefone, email))
 
+    def alterar_cliente(self, cliente_id, nome, telefone, email):
+        query = "UPDATE clientes SET nome = ?, telefone = ?, email = ? WHERE id = ?"
+        self.db.execute_query(query, (nome, telefone, email, cliente_id))
+
     def adicionar_servico(self, nome):
         query = "INSERT INTO servicos (nome) VALUES (?)"
         self.db.execute_query(query, (nome,))

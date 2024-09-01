@@ -21,7 +21,8 @@ class App:
 
         menu_cliente = tk.Menu(menu_bar, tearoff=0)
         menu_cliente.add_command(label="Cadastrar Cliente", command=self.cadastrar_cliente)
-        menu_bar.add_cascade(label="Cadastro de Clientes", menu=menu_cliente)
+        menu_cliente.add_command(label="Alterar Cliente", command=self.alterar_cliente)
+        menu_bar.add_cascade(label="Clientes", menu=menu_cliente)
 
         menu_servico = tk.Menu(menu_bar, tearoff=0)
         menu_servico.add_command(label="Cadastrar Serviço", command=self.cadastrar_servico)
@@ -62,6 +63,7 @@ class App:
             agendamento_id = item.item(selected_item[0])['values'][0]
             if messagebox.askyesno("Confirmar", "Deseja alterar as informações deste agendamento?"):
                 self.editar_agendamento(agendamento_id)
+
 
     def editar_agendamento(self, agendamento_id):
         try:
@@ -167,6 +169,62 @@ class App:
 
         btn_salvar = tk.Button(janela_cliente, text="Salvar", command=salvar_cliente)
         btn_salvar.pack(pady=20)
+
+    def alterar_cliente(self):
+        def salvar_alteracao():
+            cliente_id = combo_cliente.get().split(" - ")[0]
+            nome = entry_nome.get()
+            telefone = entry_telefone.get()
+            email = entry_email.get()
+
+            if cliente_id and nome and telefone and email:
+                try:
+                    self.controller.alterar_cliente(cliente_id, nome, telefone, email)
+                    messagebox.showinfo("Sucesso", "Cliente alterado com sucesso!")
+                    janela_alterar.destroy()
+                    self.create_main_screen()
+                except Exception as e:
+                    messagebox.showerror("Erro", str(e))
+            else:
+                messagebox.showerror("Erro", "Todos os campos devem ser preenchidos.")
+
+        def atualizar_dados_cliente(event):
+            cliente_id = combo_cliente.get().split(" - ")[0]
+            cliente = self.controller.db.fetch_all("SELECT nome, telefone, email FROM clientes WHERE id = ?",
+                                                   (cliente_id,))
+            if cliente:
+                entry_nome.delete(0, tk.END)
+                entry_nome.insert(0, cliente[0][0])
+                entry_telefone.delete(0, tk.END)
+                entry_telefone.insert(0, cliente[0][1])
+                entry_email.delete(0, tk.END)
+                entry_email.insert(0, cliente[0][2])
+
+        janela_alterar = tk.Toplevel(self.root)
+        janela_alterar.title("Alterar Cliente")
+        janela_alterar.geometry("500x300")
+
+        clientes = self.controller.db.fetch_all("SELECT id, nome FROM clientes")
+
+        tk.Label(janela_alterar, text="Cliente:", anchor="w").grid(row=0, column=0, padx=10, pady=5, sticky="w")
+        combo_cliente = ttk.Combobox(janela_alterar, values=[f"{c[0]} - {c[1]}" for c in clientes], width=50)
+        combo_cliente.grid(row=0, column=1, padx=10, pady=5, sticky="w")
+        combo_cliente.bind("<<ComboboxSelected>>", atualizar_dados_cliente)
+
+        tk.Label(janela_alterar, text="Nome:", anchor="w").grid(row=1, column=0, padx=10, pady=5, sticky="w")
+        entry_nome = tk.Entry(janela_alterar, width=50)
+        entry_nome.grid(row=1, column=1, padx=10, pady=5, sticky="w")
+
+        tk.Label(janela_alterar, text="Telefone:", anchor="w").grid(row=2, column=0, padx=10, pady=5, sticky="w")
+        entry_telefone = tk.Entry(janela_alterar, width=50)
+        entry_telefone.grid(row=2, column=1, padx=10, pady=5, sticky="w")
+
+        tk.Label(janela_alterar, text="Email:", anchor="w").grid(row=3, column=0, padx=10, pady=5, sticky="w")
+        entry_email = tk.Entry(janela_alterar, width=50)
+        entry_email.grid(row=3, column=1, padx=10, pady=5, sticky="w")
+
+        btn_salvar = tk.Button(janela_alterar, text="Salvar", command=salvar_alteracao)
+        btn_salvar.grid(row=4, column=1, padx=10, pady=20, sticky="e")
 
     def cadastrar_servico(self):
         def salvar_servico():
