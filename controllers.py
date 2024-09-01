@@ -1,7 +1,6 @@
 # controllers.py
 from database import Database
 
-
 class Controller:
     def __init__(self):
         self.db = Database()
@@ -15,13 +14,12 @@ class Controller:
         self.db.execute_query(query, (nome,))
 
     def adicionar_agendamento(self, cliente_id, data, hora, servico_id):
-        # Verifica se já existe um agendamento para o mesmo horário e data
         query_check = "SELECT * FROM agendamentos WHERE data = ? AND hora = ? AND cliente_id = ?"
         result = self.db.fetch_all(query_check, (data, hora, cliente_id))
         if result:
             raise Exception("Já existe um agendamento para este horário e data.")
 
-        query = "INSERT INTO agendamentos (cliente_id, data, hora, servico_id, status) VALUES (?, ?, ?, ?, 'agendado')"
+        query = "INSERT INTO agendamentos (cliente_id, data, hora, servico_id, status) VALUES (?, ?, ?, ?, 'Agendado')"
         self.db.execute_query(query, (cliente_id, data, hora, servico_id))
 
     def listar_agendamentos(self, limit=10, offset=0):
@@ -35,6 +33,18 @@ class Controller:
         """
         return self.db.fetch_all(query, (limit, offset))
 
-    def alterar_status_agendamento(self, agendamento_id, novo_status):
-        query = "UPDATE agendamentos SET status = ? WHERE id = ?"
-        self.db.execute_query(query, (novo_status, agendamento_id))
+    def obter_agendamento(self, agendamento_id):
+        query = "SELECT cliente_id, data, hora, servico_id, status FROM agendamentos WHERE id = ?"
+        result = self.db.fetch_one(query, (agendamento_id,))
+        if result:
+            return result
+        else:
+            raise Exception("Agendamento não encontrado.")
+
+    def atualizar_agendamento(self, agendamento_id, cliente_id, data, hora, servico_id, status):
+        query = """
+            UPDATE agendamentos
+            SET cliente_id = ?, data = ?, hora = ?, servico_id = ?, status = ?
+            WHERE id = ?
+        """
+        self.db.execute_query(query, (cliente_id, data, hora, servico_id, status, agendamento_id))

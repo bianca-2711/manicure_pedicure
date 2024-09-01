@@ -1,5 +1,6 @@
 # database.py
 import sqlite3
+
 class Database:
     def __init__(self, db_name="manicure_pedicure.db"):
         self.conn = sqlite3.connect(db_name)
@@ -45,3 +46,8 @@ class Database:
         cursor = self.conn.cursor()
         cursor.execute(query, params)
         return cursor.fetchall()
+
+    def fetch_one(self, query, params=()):
+        cursor = self.conn.cursor()
+        cursor.execute(query, params)
+        return cursor.fetchone()
