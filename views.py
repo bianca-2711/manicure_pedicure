@@ -48,13 +48,15 @@ class App:
         self.frame_agendamentos.pack(fill=tk.BOTH, expand=True, padx=20, pady=20)
 
         # Filtro por status
-        tk.Label(self.frame_agendamentos, text="Filtrar por Status:", anchor="w").pack(anchor="w")
+        tk.Label(self.frame_agendamentos, text="Filtrar por Status:", anchor="w").grid(row=0, column=0, sticky="e",
+                                                                                       padx=(0, 10))
         self.combo_status_filtro = ttk.Combobox(self.frame_agendamentos, values=["Agendado", "Atendido", "Cancelado"],
                                                 width=20)
         self.combo_status_filtro.set("Agendado")  # Valor padrão
-        self.combo_status_filtro.pack(anchor="w", pady=(0, 10))
+        self.combo_status_filtro.grid(row=0, column=1, sticky="e", pady=(0, 10))
         self.combo_status_filtro.bind("<<ComboboxSelected>>", self.on_status_filtro_changed)
 
+        # Criação da árvore de visualização
         columns = ("ID", "Cliente", "Data", "Hora", "Serviço", "Status")
         self.tree = ttk.Treeview(self.frame_agendamentos, columns=columns, show='headings')
 
@@ -62,22 +64,24 @@ class App:
             self.tree.heading(col, text=col)
             self.tree.column(col, minwidth=0, width=100)
 
-        self.tree.pack(fill=tk.BOTH, expand=True)
-        self.tree.bind("<Double-1>", self.on_item_double_click)  # Adiciona o binding para clique duplo
+        self.tree.grid(row=1, column=0, columnspan=2, sticky="nsew")
 
         # Cria controles de navegação
-        self.frame_nav = tk.Frame(self.root)
-        self.frame_nav.pack(fill=tk.X, padx=20, pady=10)
+        self.frame_nav = tk.Frame(self.frame_agendamentos)
+        self.frame_nav.grid(row=2, column=0, columnspan=2, pady=10, sticky="e")
 
         self.btn_prev = tk.Button(self.frame_nav, text="Anterior", command=self.prev_page)
         self.btn_prev.pack(side=tk.LEFT, padx=5)
 
-        # Inicializa label_page
         self.label_page = tk.Label(self.frame_nav, text=f"Página {self.current_page} de {self.max_page}")
         self.label_page.pack(side=tk.LEFT, padx=5)
 
         self.btn_next = tk.Button(self.frame_nav, text="Próximo", command=self.next_page)
         self.btn_next.pack(side=tk.LEFT, padx=5)
+
+        # Configure a expansão da grid
+        self.frame_agendamentos.grid_rowconfigure(1, weight=1)
+        self.frame_agendamentos.grid_columnconfigure(0, weight=1)
 
         # Atualiza a tabela e os controles de navegação
         self.update_table()
@@ -161,7 +165,7 @@ class App:
 
         janela_edicao = tk.Toplevel(self.root)
         janela_edicao.title("Editar Agendamento")
-        janela_edicao.geometry("500x500")
+        janela_edicao.geometry("500x300")
 
         clientes = self.controller.db.fetch_all("SELECT id, nome FROM clientes")
         servicos = self.controller.db.fetch_all("SELECT id, nome FROM servicos")
@@ -265,20 +269,20 @@ class App:
         janela_cliente.title("Cadastrar Cliente")
         janela_cliente.geometry("400x300")
 
-        tk.Label(janela_cliente, text="Nome:").pack(pady=10)
+        tk.Label(janela_cliente, text="Nome:").grid(row=0, column=0, padx=10, pady=10, sticky="w")
         entry_nome = tk.Entry(janela_cliente, width=50)
-        entry_nome.pack(pady=10)
+        entry_nome.grid(row=0, column=1, padx=10, pady=10, sticky="w")
 
-        tk.Label(janela_cliente, text="Telefone:").pack(pady=10)
+        tk.Label(janela_cliente, text="Telefone:").grid(row=1, column=0, padx=10, pady=10, sticky="w")
         entry_telefone = tk.Entry(janela_cliente, width=50)
-        entry_telefone.pack(pady=10)
+        entry_telefone.grid(row=1, column=1, padx=10, pady=10, sticky="w")
 
-        tk.Label(janela_cliente, text="Email:").pack(pady=10)
+        tk.Label(janela_cliente, text="Email:").grid(row=2, column=0, padx=10, pady=10, sticky="w")
         entry_email = tk.Entry(janela_cliente, width=50)
-        entry_email.pack(pady=10)
+        entry_email.grid(row=2, column=1, padx=10, pady=10, sticky="w")
 
         btn_salvar = tk.Button(janela_cliente, text="Salvar", command=salvar_cliente)
-        btn_salvar.pack(pady=20)
+        btn_salvar.grid(row=3, column=1, padx=10, pady=20, sticky="e")
 
     def alterar_cliente(self):
         def salvar_alteracao():
@@ -351,12 +355,12 @@ class App:
         janela_servico.title("Cadastrar Serviço")
         janela_servico.geometry("400x300")
 
-        tk.Label(janela_servico, text="Nome:").pack(pady=10)
+        tk.Label(janela_servico, text="Nome:").grid(row=0, column=0, padx=10, pady=10, sticky="w")
         entry_nome = tk.Entry(janela_servico, width=50)
-        entry_nome.pack(pady=10)
+        entry_nome.grid(row=0, column=1, padx=10, pady=10, sticky="w")
 
         btn_salvar = tk.Button(janela_servico, text="Salvar", command=salvar_servico)
-        btn_salvar.pack(pady=20)
+        btn_salvar.grid(row=1, column=1, padx=10, pady=20, sticky="e")
 
     def cadastrar_agendamento(self):
         def salvar_agendamento():
@@ -379,7 +383,7 @@ class App:
 
         janela_agendamento = tk.Toplevel(self.root)
         janela_agendamento.title("Cadastrar Agendamento")
-        janela_agendamento.geometry("500x500")
+        janela_agendamento.geometry("500x300")
 
         clientes = self.controller.db.fetch_all("SELECT id, nome FROM clientes")
         servicos = self.controller.db.fetch_all("SELECT id, nome FROM servicos")
