@@ -11,7 +11,15 @@ class App:
         self.controller = Controller()
         self.root = root
         self.root.title("Sistema de Manicure/Pedicure")
-        self.root.geometry("800x600")
+        # Define o tamanho da janela principal
+        largura = 800
+        altura = 600
+
+        # Usa a função centralizar_janela para posicionar a janela no centro
+        self.centralizar_janela(self.root, largura, altura)
+
+        # Adicione widgets e layout aqui
+        tk.Label(self.root, text="Bem-vindo ao sistema de agendamento!", font=("Arial", 16)).pack(pady=20)
 
         self.page_size = 15
         self.current_page = 1
@@ -20,6 +28,18 @@ class App:
 
         self.create_menu()
         self.create_main_screen()
+
+    def centralizar_janela(self, janela, largura, altura):
+        # Obtém o tamanho da tela
+        screen_width = janela.winfo_screenwidth()
+        screen_height = janela.winfo_screenheight()
+
+        # Calcula a posição para centralizar a janela
+        x = (screen_width // 2) - (largura // 2)
+        y = (screen_height // 2) - (altura // 2)
+
+        # Define a geometria da janela
+        janela.geometry(f"{largura}x{altura}+{x}+{y}")
 
     def create_menu(self):
         menu_bar = tk.Menu(self.root)
@@ -65,6 +85,9 @@ class App:
             self.tree.column(col, minwidth=0, width=100)
 
         self.tree.grid(row=1, column=0, columnspan=2, sticky="nsew")
+
+        # Adiciona o evento de duplo clique
+        self.tree.bind("<Double-1>", self.on_item_double_click)
 
         # Cria controles de navegação
         self.frame_nav = tk.Frame(self.frame_agendamentos)
