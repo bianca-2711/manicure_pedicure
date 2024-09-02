@@ -13,6 +13,10 @@ class App:
         self.root.title("Sistema de Manicure/Pedicure")
         self.root.geometry("800x600")
 
+        self.page_size = 15
+        self.current_page = 1
+        self.max_page = 1
+
         self.create_menu()
         self.create_main_screen()
 
@@ -43,19 +47,65 @@ class App:
         self.frame_agendamentos.pack(fill=tk.BOTH, expand=True, padx=20, pady=20)
 
         columns = ("ID", "Cliente", "Data", "Hora", "Serviço", "Status")
-        tree = ttk.Treeview(self.frame_agendamentos, columns=columns, show='headings')
+        self.tree = ttk.Treeview(self.frame_agendamentos, columns=columns, show='headings')
 
         for col in columns:
-            tree.heading(col, text=col)
-            tree.column(col, minwidth=0, width=100)
+            self.tree.heading(col, text=col)
+            self.tree.column(col, minwidth=0, width=100)
 
-        agendamentos = self.controller.listar_agendamentos()
+        self.tree.pack(fill=tk.BOTH, expand=True)
+
+        # Cria controles de navegação
+        self.frame_nav = tk.Frame(self.root)
+        self.frame_nav.pack(fill=tk.X, padx=20, pady=10)
+
+        self.btn_prev = tk.Button(self.frame_nav, text="Anterior", command=self.prev_page)
+        self.btn_prev.pack(side=tk.LEFT, padx=5)
+
+        # Inicializa label_page
+        self.label_page = tk.Label(self.frame_nav, text=f"Página {self.current_page} de {self.max_page}")
+        self.label_page.pack(side=tk.LEFT, padx=5)
+
+        self.btn_next = tk.Button(self.frame_nav, text="Próximo", command=self.next_page)
+        self.btn_next.pack(side=tk.LEFT, padx=5)
+
+        # Atualiza a tabela e os controles de navegação
+        self.update_table()
+
+    def update_table(self):
+        # Verifica se label_page existe
+        if not hasattr(self, 'label_page'):
+            raise AttributeError(
+                "O atributo 'label_page' não foi encontrado. Certifique-se de que ele foi inicializado corretamente.")
+
+        # Remove os itens existentes na tabela
+        for item in self.tree.get_children():
+            self.tree.delete(item)
+
+        offset = (self.current_page - 1) * self.page_size
+        agendamentos = self.controller.listar_agendamentos_paginado(self.page_size, offset)
 
         for agendamento in agendamentos:
-            tree.insert("", "end", values=agendamento)
+            self.tree.insert("", "end", values=agendamento)
 
-        tree.bind("<Double-1>", self.on_item_double_click)
-        tree.pack(fill=tk.BOTH, expand=True)
+        # Atualiza os botões de navegação
+        total_agendamentos = self.controller.contar_agendamentos()
+        self.max_page = (total_agendamentos + self.page_size - 1) // self.page_size
+
+        self.label_page.config(text=f"Página {self.current_page} de {self.max_page}")
+
+        self.btn_prev.config(state=tk.NORMAL if self.current_page > 1 else tk.DISABLED)
+        self.btn_next.config(state=tk.NORMAL if self.current_page < self.max_page else tk.DISABLED)
+
+    def prev_page(self):
+        if self.current_page > 1:
+            self.current_page -= 1
+            self.update_table()
+
+    def next_page(self):
+        if self.current_page < self.max_page:
+            self.current_page += 1
+            self.update_table()
 
     def on_item_double_click(self, event):
         item = self.frame_agendamentos.winfo_children()[0]
@@ -85,7 +135,7 @@ class App:
                     self.controller.atualizar_agendamento(agendamento_id, cliente_id, data, hora, servico_id, status)
                     messagebox.showinfo("Sucesso", "Agendamento atualizado com sucesso!")
                     janela_edicao.destroy()
-                    self.create_main_screen()  # Atualiza a tabela de agendamentos
+                    self.update_table()  # Atualiza a tabela de agendamentos
                 except Exception as e:
                     messagebox.showerror("Erro", str(e))
             else:
