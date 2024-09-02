@@ -188,7 +188,13 @@ class App:
 
         janela_edicao = tk.Toplevel(self.root)
         janela_edicao.title("Editar Agendamento")
-        janela_edicao.geometry("500x300")
+
+        # Define o tamanho da janela de edição
+        largura = 500
+        altura = 300
+
+        # Usa a função centralizar_janela para posicionar a janela no centro
+        self.centralizar_janela(janela_edicao, largura, altura)
 
         clientes = self.controller.db.fetch_all("SELECT id, nome FROM clientes")
         servicos = self.controller.db.fetch_all("SELECT id, nome FROM servicos")
@@ -251,7 +257,13 @@ class App:
 
         janela_servico = tk.Toplevel(self.root)
         janela_servico.title("Editar Serviço")
-        janela_servico.geometry("500x300")
+
+        # Define o tamanho da janela de edição
+        largura = 400
+        altura = 300
+
+        # Usa a função centralizar_janela para posicionar a janela no centro
+        self.centralizar_janela(janela_servico, largura, altura)
 
         servicos = self.controller.db.fetch_all("SELECT id, nome FROM servicos")
 
@@ -290,7 +302,13 @@ class App:
 
         janela_cliente = tk.Toplevel(self.root)
         janela_cliente.title("Cadastrar Cliente")
-        janela_cliente.geometry("400x300")
+
+        # Define o tamanho da janela de edição
+        largura = 400
+        altura = 300
+
+        # Usa a função centralizar_janela para posicionar a janela no centro
+        self.centralizar_janela(janela_cliente, largura, altura)
 
         tk.Label(janela_cliente, text="Nome:").grid(row=0, column=0, padx=10, pady=10, sticky="w")
         entry_nome = tk.Entry(janela_cliente, width=50)
@@ -339,7 +357,13 @@ class App:
 
         janela_alterar = tk.Toplevel(self.root)
         janela_alterar.title("Alterar Cliente")
-        janela_alterar.geometry("500x300")
+
+        # Define o tamanho da janela de edição
+        largura = 400
+        altura = 300
+
+        # Usa a função centralizar_janela para posicionar a janela no centro
+        self.centralizar_janela(janela_alterar, largura, altura)
 
         clientes = self.controller.db.fetch_all("SELECT id, nome FROM clientes")
 
@@ -376,7 +400,13 @@ class App:
 
         janela_servico = tk.Toplevel(self.root)
         janela_servico.title("Cadastrar Serviço")
-        janela_servico.geometry("400x300")
+
+        # Define o tamanho da janela de edição
+        largura = 400
+        altura = 300
+
+        # Usa a função centralizar_janela para posicionar a janela no centro
+        self.centralizar_janela(janela_servico, largura, altura)
 
         tk.Label(janela_servico, text="Nome:").grid(row=0, column=0, padx=10, pady=10, sticky="w")
         entry_nome = tk.Entry(janela_servico, width=50)
@@ -406,7 +436,13 @@ class App:
 
         janela_agendamento = tk.Toplevel(self.root)
         janela_agendamento.title("Cadastrar Agendamento")
-        janela_agendamento.geometry("500x300")
+
+        # Define o tamanho da janela de edição
+        largura = 500
+        altura = 300
+
+        # Usa a função centralizar_janela para posicionar a janela no centro
+        self.centralizar_janela(janela_agendamento, largura, altura)
 
         clientes = self.controller.db.fetch_all("SELECT id, nome FROM clientes")
         servicos = self.controller.db.fetch_all("SELECT id, nome FROM servicos")
