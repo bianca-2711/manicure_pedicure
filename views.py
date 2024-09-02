@@ -26,7 +26,8 @@ class App:
 
         menu_servico = tk.Menu(menu_bar, tearoff=0)
         menu_servico.add_command(label="Cadastrar Serviço", command=self.cadastrar_servico)
-        menu_bar.add_cascade(label="Cadastro de Serviços", menu=menu_servico)
+        menu_servico.add_command(label="Editar Serviço", command=self.editar_servico)
+        menu_bar.add_cascade(label="Serviços", menu=menu_servico)
 
         menu_agendamento = tk.Menu(menu_bar, tearoff=0)
         menu_agendamento.add_command(label="Novo Agendamento", command=self.cadastrar_agendamento)
@@ -129,6 +130,47 @@ class App:
 
         btn_salvar = tk.Button(janela_edicao, text="Salvar", command=salvar_edicao)
         btn_salvar.grid(row=5, column=1, padx=10, pady=20, sticky="e")
+
+
+    def editar_servico(self):
+        def salvar_alteracao():
+            servico_id = combo_servico.get().split(" - ")[0]
+            novo_nome = entry_nome.get()
+
+            if servico_id and novo_nome:
+                try:
+                    self.controller.atualizar_servico(servico_id, novo_nome)
+                    messagebox.showinfo("Sucesso", "Serviço atualizado com sucesso!")
+                    janela_servico.destroy()
+                except Exception as e:
+                    messagebox.showerror("Erro", str(e))
+            else:
+                messagebox.showerror("Erro", "Todos os campos devem ser preenchidos.")
+
+        def atualizar_dados_servico(event):
+            servico_id = combo_servico.get().split(" - ")[0]
+            servico = self.controller.db.fetch_one("SELECT nome FROM servicos WHERE id = ?", (servico_id,))
+            if servico:
+                entry_nome.delete(0, tk.END)
+                entry_nome.insert(0, servico[0])
+
+        janela_servico = tk.Toplevel(self.root)
+        janela_servico.title("Editar Serviço")
+        janela_servico.geometry("500x300")
+
+        servicos = self.controller.db.fetch_all("SELECT id, nome FROM servicos")
+
+        tk.Label(janela_servico, text="Serviço:", anchor="w").grid(row=0, column=0, padx=10, pady=5, sticky="w")
+        combo_servico = ttk.Combobox(janela_servico, values=[f"{s[0]} - {s[1]}" for s in servicos], width=50)
+        combo_servico.grid(row=0, column=1, padx=10, pady=5, sticky="w")
+        combo_servico.bind("<<ComboboxSelected>>", atualizar_dados_servico)
+
+        tk.Label(janela_servico, text="Novo Nome:", anchor="w").grid(row=1, column=0, padx=10, pady=5, sticky="w")
+        entry_nome = tk.Entry(janela_servico, width=50)
+        entry_nome.grid(row=1, column=1, padx=10, pady=5, sticky="w")
+
+        btn_salvar = tk.Button(janela_servico, text="Salvar", command=salvar_alteracao)
+        btn_salvar.grid(row=2, column=1, padx=10, pady=20, sticky="e")
 
     def get_cliente_nome(self, cliente_id):
         cliente = self.controller.db.fetch_one("SELECT nome FROM clientes WHERE id = ?", (cliente_id,))

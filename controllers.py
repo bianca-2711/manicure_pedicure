@@ -17,6 +17,14 @@ class Controller:
         query = "INSERT INTO servicos (nome) VALUES (?)"
         self.db.execute_query(query, (nome,))
 
+    def listar_servicos(self):
+        query = "SELECT id, nome FROM servicos"
+        return self.db.fetch_all(query)
+
+    def atualizar_servico(self, servico_id, novo_nome):
+        query = "UPDATE servicos SET nome = ? WHERE id = ?"
+        self.db.execute_query(query, (novo_nome, servico_id))
+
     def adicionar_agendamento(self, cliente_id, data, hora, servico_id):
         query_check = "SELECT * FROM agendamentos WHERE data = ? AND hora = ? AND cliente_id = ?"
         result = self.db.fetch_all(query_check, (data, hora, cliente_id))
