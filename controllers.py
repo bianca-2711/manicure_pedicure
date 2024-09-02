@@ -45,16 +45,21 @@ class Controller:
         """
         return self.db.fetch_all(query, (limit, offset))
 
-    def listar_agendamentos_paginado(self, page_size, offset):
+    def listar_agendamentos_paginado(self, page_size, offset, status):
         query = """
         SELECT a.id, c.nome, a.data, a.hora, s.nome, a.status
         FROM agendamentos a
         JOIN clientes c ON a.cliente_id = c.id
         JOIN servicos s ON a.servico_id = s.id
+        WHERE a.status = ?
         ORDER BY a.data DESC, a.hora DESC
         LIMIT ? OFFSET ?
         """
-        return self.db.fetch_all(query, (page_size, offset))
+        return self.db.fetch_all(query, (status, page_size, offset))
+
+    def contar_agendamentos_por_status(self, status):
+        query = "SELECT COUNT(*) FROM agendamentos WHERE status = ?"
+        return self.db.fetch_one(query, (status,))[0]
 
     def contar_agendamentos(self):
         query = "SELECT COUNT(*) FROM agendamentos"

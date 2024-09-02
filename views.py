@@ -16,6 +16,7 @@ class App:
         self.page_size = 15
         self.current_page = 1
         self.max_page = 1
+        self.selected_status = "Agendado"  # Filtro padrão
 
         self.create_menu()
         self.create_main_screen()
@@ -46,6 +47,14 @@ class App:
         self.frame_agendamentos = tk.Frame(self.root)
         self.frame_agendamentos.pack(fill=tk.BOTH, expand=True, padx=20, pady=20)
 
+        # Filtro por status
+        tk.Label(self.frame_agendamentos, text="Filtrar por Status:", anchor="w").pack(anchor="w")
+        self.combo_status_filtro = ttk.Combobox(self.frame_agendamentos, values=["Agendado", "Atendido", "Cancelado"],
+                                                width=20)
+        self.combo_status_filtro.set("Agendado")  # Valor padrão
+        self.combo_status_filtro.pack(anchor="w", pady=(0, 10))
+        self.combo_status_filtro.bind("<<ComboboxSelected>>", self.on_status_filtro_changed)
+
         columns = ("ID", "Cliente", "Data", "Hora", "Serviço", "Status")
         self.tree = ttk.Treeview(self.frame_agendamentos, columns=columns, show='headings')
 
@@ -54,6 +63,7 @@ class App:
             self.tree.column(col, minwidth=0, width=100)
 
         self.tree.pack(fill=tk.BOTH, expand=True)
+        self.tree.bind("<Double-1>", self.on_item_double_click)  # Adiciona o binding para clique duplo
 
         # Cria controles de navegação
         self.frame_nav = tk.Frame(self.root)
@@ -83,7 +93,10 @@ class App:
             self.tree.delete(item)
 
         offset = (self.current_page - 1) * self.page_size
-        agendamentos = self.controller.listar_agendamentos_paginado(self.page_size, offset)
+        status_filtro = self.selected_status
+
+        # Filtra os agendamentos por status
+        agendamentos = self.controller.listar_agendamentos_paginado(self.page_size, offset, status_filtro)
 
         for agendamento in agendamentos:
             self.tree.insert("", "end", values=agendamento)
@@ -97,6 +110,11 @@ class App:
         self.btn_prev.config(state=tk.NORMAL if self.current_page > 1 else tk.DISABLED)
         self.btn_next.config(state=tk.NORMAL if self.current_page < self.max_page else tk.DISABLED)
 
+    def on_status_filtro_changed(self, event):
+        self.selected_status = self.combo_status_filtro.get()
+        self.current_page = 1
+        self.update_table()
+
     def prev_page(self):
         if self.current_page > 1:
             self.current_page -= 1
@@ -108,10 +126,10 @@ class App:
             self.update_table()
 
     def on_item_double_click(self, event):
-        item = self.frame_agendamentos.winfo_children()[0]
-        selected_item = item.selection()
-        if selected_item:
-            agendamento_id = item.item(selected_item[0])['values'][0]
+        item = self.tree.selection()
+
+        if item:
+            agendamento_id = self.tree.item(item[0])['values'][0]
             if messagebox.askyesno("Confirmar", "Deseja alterar as informações deste agendamento?"):
                 self.editar_agendamento(agendamento_id)
 
